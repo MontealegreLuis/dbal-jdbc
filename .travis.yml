@@ -3,7 +3,12 @@ language: java
 jdk:
   - oraclejdk8
 
+services:
+  - mysql
+
 before_script:
+  - cp src/test/resources/tests.travis.properties src/test/resources/tests.properties
+  - mysql -e 'create database movies_test_db;'
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 script:
