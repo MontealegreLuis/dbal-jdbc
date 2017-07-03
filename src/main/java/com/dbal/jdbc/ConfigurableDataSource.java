@@ -8,7 +8,7 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import java.util.Properties;
 
 public class ConfigurableDataSource {
-    public static MysqlDataSource fromCredentials(Properties credentials) {
+    public static MysqlDataSource connectAsUserWith(Properties credentials) {
         MysqlDataSource source = new MysqlDataSource();
         source.setUser(credentials.getProperty("user"));
         source.setPassword(credentials.getProperty("password"));
@@ -16,11 +16,11 @@ public class ConfigurableDataSource {
         return source;
     }
 
-    public static MysqlDataSource using(Properties configuration) {
+    public static MysqlDataSource connectViaUrlWith(Properties credentials) {
         MysqlDataSource source = new MysqlDataSource();
-        source.setURL(configuration.getProperty("url"));
-        source.setUser(configuration.getProperty("user"));
-        source.setPassword(configuration.getProperty("password"));
+        source.setURL(credentials.getProperty("url"));
+        source.setUser(credentials.getProperty("user"));
+        source.setPassword(credentials.getProperty("password"));
 
         return source;
     }

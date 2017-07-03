@@ -20,17 +20,25 @@ public class Database {
 
     public void create(String database) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                String.format("CREATE DATABASE IF NOT EXISTS %s", database)
-            );
+            statement.executeUpdate(String.format("CREATE DATABASE %s", database));
+        }
+    }
+
+    public void createIfNotExists(String database) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(String.format("CREATE DATABASE IF NOT EXISTS %s", database));
         }
     }
 
     public void drop(String database) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                String.format("DROP DATABASE IF EXISTS %s", database)
-            );
+            statement.executeUpdate(String.format("DROP DATABASE %s", database));
+        }
+    }
+
+    public void dropIfExists(String database) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(String.format("DROP DATABASE IF EXISTS %s", database));
         }
     }
 
@@ -40,27 +48,17 @@ public class Database {
         }
     }
 
-    public void importSQLFile(
-        String path
-    ) throws IOException, SQLException {
-        StringBuilder queries = new StringBuilder();
+    public void importSQLFile(String path) throws IOException, SQLException {
+        StringBuilder lines = new StringBuilder();
 
-        try (
-            BufferedReader reader = new BufferedReader(new FileReader(new File(path)))
-        ) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(path)))) {
             String line;
-            while ((line = reader.readLine()) != null) {
-                queries.append(line).append(" ");
-            }
+            while ((line = reader.readLine()) != null) lines.append(line).append(" ");
         }
 
         try (Statement statement = connection.createStatement()) {
-            String[] ddlStatements = queries.toString().split(";");
-            for (String query : ddlStatements) {
-                if (!query.trim().isEmpty()) {
-                    statement.executeUpdate(query);
-                }
-            }
+            String[] queries = lines.toString().split(";");
+            for (String query : queries) if (!query.trim().isEmpty()) statement.executeUpdate(query);
         }
     }
 }
