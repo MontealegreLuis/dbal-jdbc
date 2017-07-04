@@ -4,10 +4,7 @@
 package com.dbal.jdbc;
 
 import com.dbal.jdbc.builders.HasSQLRepresentation;
-import com.dbal.jdbc.statements.InsertStatement;
-import com.dbal.jdbc.statements.SQLStatement;
-import com.dbal.jdbc.statements.SelectStatement;
-import com.dbal.jdbc.statements.UpdateStatement;
+import com.dbal.jdbc.statements.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +39,7 @@ abstract public class Table<T> {
             QueryParameters.bind(statement, parameters);
             statement.execute();
         } catch (SQLException e) {
-            throw SQLStatement.queryException(insertOrUpdate, parameters, e);
+            throw SQLError.producedBy(insertOrUpdate, parameters, e);
         }
     }
 

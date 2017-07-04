@@ -39,7 +39,7 @@ public class InsertStatement<T> extends SQLStatement {
             key.next();
             return new Hydrator<>(key.getLong(1), parameters, mapper);
         } catch (SQLException e) {
-            throw queryException(insert, parameters, e);
+            throw SQLError.producedBy(insert, parameters, e);
         }
     }
 }

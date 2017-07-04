@@ -95,7 +95,7 @@ public class SelectStatement<T> extends SQLStatement {
 
             return new Hydrator<>(resultSet, mapper);
         } catch (SQLException e) {
-            throw queryException(select, parameters, e);
+            throw SQLError.producedBy(select, parameters, e);
         }
     }
 }
