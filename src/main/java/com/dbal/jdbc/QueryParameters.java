@@ -7,12 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class QueryParameters {
-    public static void bind(
-        PreparedStatement statement,
-        Object[] parameters
-    ) throws SQLException {
-        for (int i = 0; i < parameters.length; i++) {
-            statement.setObject(i + 1, parameters[i]);
-        }
+    public static void bind(PreparedStatement statement, Object[] parameters) throws SQLException {
+        for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
     }
 }

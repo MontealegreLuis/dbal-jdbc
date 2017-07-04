@@ -3,17 +3,15 @@
  */
 package com.dbal.jdbc;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+import com.dbal.jdbc.suites.IntegrationSuite;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,11 +61,8 @@ public class DatabaseTest {
 
     @Before
     public void createConnection() throws IOException, SQLException {
-        Properties credentials = new Properties();
-        credentials.load(new FileInputStream("src/test/resources/tests.properties"));
-        MysqlDataSource source = ConfigurableDataSource.connectAsUserWith(credentials);
-        databaseName = credentials.getProperty("database");
-        connection = source.getConnection();
+        databaseName = IntegrationSuite.credentials.getProperty("database");
+        connection = IntegrationSuite.connection;
         cleanupDatabase();
         database = new Database(connection);
     }

@@ -9,6 +9,10 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <dbSuite>**/IntegrationSuite.class</dbSuite>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -31,6 +35,20 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin> <!-- tests -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <includes>
+                        <include>com.dbal.jdbc.builders.queries.*</include>
+                        <include>com.dbal.jdbc.builders.schema.*</include>
+                        <include>com.dbal.jdbc.statements.HydratorTest</include>
+                        <include>com.dbal.jdbc.QueryParametersTest</include>
+                        <include>${dbSuite}</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
