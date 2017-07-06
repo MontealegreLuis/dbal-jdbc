@@ -5,19 +5,19 @@ package com.dbal.jdbc.builders.queries;
 
 import com.dbal.jdbc.builders.HasSQLRepresentation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Select implements HasSQLRepresentation {
-    private Columns columns;
-    private From from;
-    private Where where;
-    private Join join;
-    private Rows rows;
+    private Map<String, HasSQLRepresentation> parts;
 
     private Select(From from) {
-        this.from = from;
-        columns = Columns.empty().defaultTo("*");
-        where = Where.empty();
-        join = Join.empty();
-        rows = Rows.all();
+        parts = new HashMap<>();
+        parts.put("from", new From(from));
+        parts.put("columns", Columns.empty().defaultTo("*"));
+        parts.put("where", Where.empty());
+        parts.put("join", Join.empty());
+        parts.put("rows", Rows.all());
     }
 
     /**
@@ -26,11 +26,12 @@ public class Select implements HasSQLRepresentation {
      * @param select Statement to be copied
      */
     public Select(Select select) {
-        from = new From(select.from);
-        columns = new Columns(select.columns);
-        where = select.where;
-        join = select.join;
-        rows = select.rows;
+        parts = new HashMap<>();
+        parts.put("from", new From(((From) select.parts.get("from"))));
+        parts.put("columns", new Columns(((Columns) select.parts.get("columns"))));
+        parts.put("where", select.parts.get("where"));
+        parts.put("join", select.parts.get("join"));
+        parts.put("rows", select.parts.get("rows"));
     }
 
     public static Select from(String table) {
@@ -50,28 +51,25 @@ public class Select implements HasSQLRepresentation {
      * will result in:
      *
      * `SELECT * FROM users u`
-     *
-     * @param alias
-     * @return Select
      */
     public Select addTableAlias(String alias) {
-        from.addAlias(alias);
+        ((From) parts.get("from")).addAlias(alias);
         return this;
     }
 
     public Select addColumns(String... columns) {
-        this.columns.add(columns);
+        ((Columns) parts.get("columns")).add(columns);
         return this;
     }
 
     public Select columns(String... columns) {
-        this.columns.clear().add(columns);
+        ((Columns) parts.get("columns")).clear().add(columns);
         return this;
     }
 
     public Select count() {
-        rows.clear();
-        columns.count();
+        ((Rows) parts.get("rows")).clear();
+        ((Columns) parts.get("columns")).count();
         return this;
     }
 
@@ -85,17 +83,13 @@ public class Select implements HasSQLRepresentation {
      * ```
      */
     public Select countDistinct(String column) {
-        rows.clear();
-        columns.countDistinct(column);
+        ((Rows) parts.get("rows")).clear();
+        ((Columns) parts.get("columns")).countDistinct(column);
         return this;
     }
 
-    private String alias() {
-        return from.alias();
-    }
-
     public Select where(String expression) {
-        where.and(expression);
+        ((Where) parts.get("where")).and(expression);
         return this;
     }
 
@@ -112,12 +106,12 @@ public class Select implements HasSQLRepresentation {
      * @param parametersCount Count of `?` parameters in the `IN` clause
      */
     public Select where(String column, int parametersCount) {
-        where.and(column, parametersCount);
+        ((Where) parts.get("where")).and(column, parametersCount);
         return this;
     }
 
     public Select orWhere(String expression) {
-        where.or(expression);
+        ((Where) parts.get("where")).or(expression);
         return this;
     }
 
@@ -132,30 +126,29 @@ public class Select implements HasSQLRepresentation {
      *
      * @param column Column name
      * @param parametersCount Count of `?` parameters in the `IN` clause
-     * @return
      */
     public Select orWhere(String column, int parametersCount) {
-        where.or(column, parametersCount);
+        ((Where) parts.get("where")).or(column, parametersCount);
         return this;
     }
 
     public Select join(String table, String on) {
-        join.inner(table, on);
+        ((Join) parts.get("join")).inner(table, on);
         return this;
     }
 
     public Select outerJoin(String table, String on) {
-        join.outer(table, on);
+        ((Join) parts.get("join")).outer(table, on);
         return this;
     }
 
     public Select limit(int limit) {
-        rows.countTo(limit);
+        ((Rows) parts.get("rows")).countTo(limit);
         return this;
     }
 
     public Select offset(int offset) {
-        rows.startingAt(offset);
+        ((Rows) parts.get("rows")).startingAt(offset);
         return this;
     }
 
@@ -163,11 +156,11 @@ public class Select implements HasSQLRepresentation {
     public String toSQL() {
         return String.format(
             "SELECT %s FROM %s %s %s %s",
-            columns.toSQL(),
-            from.toSQL(),
-            join.toSQL(),
-            where.toSQL(),
-            rows.toSQL()
+            parts.get("columns").toSQL(),
+            parts.get("from").toSQL(),
+            parts.get("join").toSQL(),
+            parts.get("where").toSQL(),
+            parts.get("rows").toSQL()
         ).trim().replaceAll("( )+", " ");
     }
 }
