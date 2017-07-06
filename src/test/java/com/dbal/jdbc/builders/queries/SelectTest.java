@@ -60,7 +60,7 @@ public class SelectTest {
         select = Select
             .from("movies")
             .addTableAlias("m")
-            .count()
+            .countDistinct("m.id")
             .join("movies_categories mc", "m.id = mc.movie_id")
             .where("m.id = ?")
         ;

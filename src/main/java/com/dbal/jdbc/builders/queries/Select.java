@@ -11,7 +11,6 @@ public class Select implements HasSQLRepresentation {
     private Where where;
     private Join join;
     private Rows rows;
-    private Count count;
 
     private Select(From from) {
         this.from = from;
@@ -19,7 +18,6 @@ public class Select implements HasSQLRepresentation {
         where = Where.empty();
         join = Join.empty();
         rows = Rows.all();
-        count = null;
     }
 
     /**
@@ -33,7 +31,6 @@ public class Select implements HasSQLRepresentation {
         where = select.where;
         join = select.join;
         rows = select.rows;
-        count = select.count;
     }
 
     public static Select from(String table) {
@@ -73,7 +70,23 @@ public class Select implements HasSQLRepresentation {
     }
 
     public Select count() {
-        count = new Count();
+        rows.clear();
+        columns.count();
+        return this;
+    }
+
+    /**
+     * Parameter `column` allows yu to specify a specific column to use for your count. For instance
+     *
+     * ```
+     * u.id
+     * users.username
+     * users.*
+     * ```
+     */
+    public Select countDistinct(String column) {
+        rows.clear();
+        columns.countDistinct(column);
         return this;
     }
 
@@ -150,23 +163,11 @@ public class Select implements HasSQLRepresentation {
     public String toSQL() {
         return String.format(
             "SELECT %s FROM %s %s %s %s",
-            columnsToSQL(),
+            columns.toSQL(),
             from.toSQL(),
             join.toSQL(),
             where.toSQL(),
             rows.toSQL()
         ).trim().replaceAll("( )+", " ");
-    }
-
-    private String columnsToSQL() {
-        if (count != null) determineCount();
-        return columns.toSQL();
-    }
-
-    private void determineCount() {
-        columns.clear();
-        rows.clear();
-        if (join.isEmpty()) count.count(columns);
-        else count.count(columns, alias());
     }
 }

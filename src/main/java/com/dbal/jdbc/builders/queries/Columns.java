@@ -36,6 +36,14 @@ class Columns implements HasSQLRepresentation {
         return this;
     }
 
+    public void count() {
+        clear().add("COUNT(*)");
+    }
+
+    public void countDistinct(String column) {
+        clear().add(String.format("COUNT(DISTINCT %s)", column));
+    }
+
     int size() {
         return columns.size();
     }
