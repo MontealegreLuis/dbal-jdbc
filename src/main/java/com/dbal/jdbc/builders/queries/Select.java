@@ -11,7 +11,7 @@ public class Select implements HasSQLRepresentation {
     private Where where;
     private Join join;
     private Rows rows;
-    private boolean determineCount = false;
+    private Count count;
 
     private Select(From from) {
         this.from = from;
@@ -19,6 +19,7 @@ public class Select implements HasSQLRepresentation {
         where = Where.empty();
         join = Join.empty();
         rows = Rows.all();
+        count = null;
     }
 
     /**
@@ -32,7 +33,7 @@ public class Select implements HasSQLRepresentation {
         where = select.where;
         join = select.join;
         rows = select.rows;
-        determineCount = select.determineCount;
+        count = select.count;
     }
 
     public static Select from(String table) {
@@ -72,7 +73,7 @@ public class Select implements HasSQLRepresentation {
     }
 
     public Select count() {
-        determineCount = true;
+        count = new Count();
         return this;
     }
 
@@ -96,7 +97,6 @@ public class Select implements HasSQLRepresentation {
      *
      * @param column Column name
      * @param parametersCount Count of `?` parameters in the `IN` clause
-     * @return
      */
     public Select where(String column, int parametersCount) {
         where.and(column, parametersCount);
@@ -159,19 +159,14 @@ public class Select implements HasSQLRepresentation {
     }
 
     private String columnsToSQL() {
-        if (determineCount) {
-            determineCount();
-        }
+        if (count != null) determineCount();
         return columns.toSQL();
     }
 
     private void determineCount() {
         columns.clear();
         rows.clear();
-        if (join.isEmpty()) {
-            columns.add("COUNT(*)");
-        } else {
-            columns.add(String.format("COUNT(DISTINCT %s.id)", alias()));
-        }
+        if (join.isEmpty()) count.count(columns);
+        else count.count(columns, alias());
     }
 }
