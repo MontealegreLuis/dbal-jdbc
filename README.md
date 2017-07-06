@@ -6,7 +6,37 @@
 This library uses JDBC to help you create MySQL databases, migrations
 and seeders programmatically. 
 
-## Database management
+# Installation
+
+You can use this library via Maven and [Jitpack](https://jitpack.io/). Add 
+the following repository to your POM file.
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+Now add the following dependency.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.MontealegreLuis</groupId>
+        <artifactId>dbal-jdbc</artifactId>
+        <version>master-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+```
+
+That's it! Enjoy!
+
+## Usage
+
+### Database management
 
 ```java
 Database database = new Database(connection);
@@ -15,7 +45,7 @@ database.create(name);
 database.use(name);
 ```
 
-## Migrations
+### Migrations
 
 ```java
 Table movies = schema.table("movies").ifNotExists();
@@ -44,7 +74,7 @@ moviesCategories.foreign(categoryId).references("id").on("categories");
 moviesCategories.primary(movieId, categoryId);
 ```
 
-## Query builder
+### Query builder
 
 ```java
 class MoviesTable extends Table<Movie> {
@@ -101,7 +131,7 @@ class MoviesTable extends Table<Movie> {
 }
 ```
 
-# Seeders
+### Seeders
 
 ```java
 MoviesTable table = new MoviesTable(connection); 
@@ -111,4 +141,19 @@ table.insert(
     movie.thumbnail(),
     movie.categories()
 );
+```
+
+## Tests
+
+You can run the test suite using Maven. Create your configuration file for the integration tests
+using `test.dist.prperties`
+ 
+```
+$ cp src/test/java/resources/test.dist.properties src/test/java/resources/test.properties
+```
+
+Run the tests with Maven
+
+```
+$ mvn test
 ```
