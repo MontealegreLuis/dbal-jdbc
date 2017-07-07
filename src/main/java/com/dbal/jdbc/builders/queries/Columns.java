@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 class Columns implements HasSQLRepresentation {
+    private static final String ALL = "*";
     private List<String> columns;
-    private String defaultColumn;
 
     private Columns() {
         columns = new ArrayList<>();
@@ -19,16 +19,14 @@ class Columns implements HasSQLRepresentation {
 
     Columns(Columns columns) {
         this.columns = new ArrayList<>(columns.columns);
-        defaultColumn = columns.defaultColumn;
     }
 
     public static Columns empty() {
         return new Columns();
     }
 
-    Columns defaultTo(String column) {
-        defaultColumn = column;
-        return this;
+    public static Columns all() {
+        return new Columns().add(ALL);
     }
 
     public Columns add(String... columns) {
@@ -37,7 +35,7 @@ class Columns implements HasSQLRepresentation {
     }
 
     public void count() {
-        clear().add("COUNT(*)");
+        clear().add(String.format("COUNT(%s)", ALL));
     }
 
     public void countDistinct(String column) {
@@ -55,7 +53,7 @@ class Columns implements HasSQLRepresentation {
 
     @Override
     public String toSQL() {
-        if (columns.isEmpty()) columns.add(defaultColumn);
+        if (columns.isEmpty()) columns.add(ALL);
 
         return String.join(", ", columns.toArray(new String[]{}));
     }

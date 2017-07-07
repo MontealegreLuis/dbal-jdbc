@@ -13,8 +13,8 @@ public class Select implements HasSQLRepresentation {
 
     private Select(From from) {
         parts = new HashMap<>();
-        parts.put("from", new From(from));
-        parts.put("columns", Columns.empty().defaultTo("*"));
+        parts.put("from", from);
+        parts.put("columns", Columns.empty());
         parts.put("where", Where.empty());
         parts.put("join", Join.empty());
         parts.put("rows", Rows.all());

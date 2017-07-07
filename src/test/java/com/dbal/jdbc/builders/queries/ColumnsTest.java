@@ -17,18 +17,8 @@ public class ColumnsTest {
     }
 
     @Test
-    public void it_converts_to_sql_a_using_a_default_value() {
-        columns.defaultTo("*");
-        assertEquals("*", columns.toSQL());
-    }
-
-    @Test
-    public void it_converts_to_sql_overriding_the_default_value() {
-        columns.defaultTo("*");
-
-        columns.add("username", "password");
-
-        assertEquals("username, password", columns.toSQL());
+    public void it_converts_to_sql_the_wildcard_for_all_columns() {
+        assertThat(Columns.all().toSQL(), is("*"));
     }
 
     @Test
@@ -39,7 +29,7 @@ public class ColumnsTest {
     }
 
     @Test
-    public void it_clears_current_columns_and_append_more() {
+    public void it_replaces_existing_columns() {
         columns.add("username", "password").clear().add("password", "email");
 
         assertEquals("password, email", columns.toSQL());
