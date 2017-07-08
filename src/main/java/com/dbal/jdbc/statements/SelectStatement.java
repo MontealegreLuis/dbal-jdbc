@@ -22,7 +22,7 @@ public class SelectStatement<T> extends SQLStatement {
         RowMapper<T> mapper
     ) {
         super(connection);
-        this.select = Select.from(table);
+        this.select = Select.all().from(table);
         this.mapper = mapper;
     }
 

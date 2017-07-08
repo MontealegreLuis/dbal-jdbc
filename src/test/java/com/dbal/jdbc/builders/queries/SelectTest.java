@@ -8,14 +8,12 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class SelectTest {
-    private Select select;
-
     @Test
     public void it_creates_a_copy_of_a_given_select() {
-        select = Select.from("users", "u").where("u.username = ?");
+        select = Select.all().from("users", "u").where("u.username = ?");
 
         Select copy = new Select(select);
-        copy.columns("COUNT(*)");
+        copy.replaceColumns("COUNT(*)");
 
         assertEquals("SELECT * FROM users u WHERE u.username = ?", select.toSQL());
         assertEquals("SELECT COUNT(*) FROM users u WHERE u.username = ?", copy.toSQL());
@@ -23,44 +21,45 @@ public class SelectTest {
 
     @Test
     public void it_sets_default_value_for_select_clause() {
-        select = Select.from("users");
+        select = Select.all().from("users");
         assertEquals("SELECT * FROM users", select.toSQL());
     }
 
     @Test
     public void it_selects_specific_columns() {
-        select = Select.from("users").columns("username", "password");
+        select = Select.columns("username", "password").from("users");
         assertEquals("SELECT username, password FROM users", select.toSQL());
     }
 
     @Test
     public void it_appends_columns_to_select() {
         select = Select
-            .from("users")
-            .addColumns("id")
+            .columns("id")
             .addColumns("username", "password")
+            .from("users")
         ;
         assertEquals("SELECT id, username, password FROM users", select.toSQL());
     }
 
     @Test
     public void it_adds_an_alias_to_a_query() {
-        select = Select.from("movies").addTableAlias("m");
+        select = Select.all().from("movies").addTableAlias("m");
         assertEquals("SELECT * FROM movies m", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_a_count_select_without_joins() {
-        select = Select.from("movies").count().where("category_id = ?");
+        select = Select.all().count().from("movies").where("category_id = ?");
         assertEquals("SELECT COUNT(*) FROM movies WHERE category_id = ?", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_a_count_select_with_joins() {
         select = Select
+            .all()
+            .countDistinct("m.id")
             .from("movies")
             .addTableAlias("m")
-            .countDistinct("m.id")
             .join("movies_categories mc", "m.id = mc.movie_id")
             .where("m.id = ?")
         ;
@@ -72,13 +71,14 @@ public class SelectTest {
 
     @Test
     public void it_converts_to_sql_a_single_where_expression() {
-        select = Select.from("users").where("username = ?");
+        select = Select.all().from("users").where("username = ?");
         assertEquals("SELECT * FROM users WHERE username = ?", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_several_and_where_expressions() {
         select = Select
+            .all()
             .from("users")
             .where("username = ?")
             .where("password = ?")
@@ -93,6 +93,7 @@ public class SelectTest {
     @Test
     public void it_converts_to_sql_several_or_where_expressions() {
         select = Select
+            .all()
             .from("users")
             .where("username = ?")
             .orWhere("password = ?")
@@ -107,6 +108,7 @@ public class SelectTest {
     @Test
     public void it_converts_to_sql_a_combination_of_where_expressions() {
         select = Select
+            .all()
             .from("users")
             .where("username = ?")
             .orWhere("password = ?")
@@ -120,13 +122,14 @@ public class SelectTest {
 
     @Test
     public void it_converts_to_sql_an_in_statement() {
-        select = Select.from("users").where("username", 2);
+        select = Select.all().from("users").where("username", 2);
         assertEquals("SELECT * FROM users WHERE username IN (?, ?)", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_an_several_in_statement() {
         select = Select
+            .all()
             .from("users")
             .where("username", 2)
             .orWhere("id", 3)
@@ -140,19 +143,23 @@ public class SelectTest {
 
     @Test
     public void it_converts_to_sql_a_statement_with_a_limit() {
-        select = Select.from("users").limit(5);
+        select = Select.all().from("users").limit(5);
         assertEquals("SELECT * FROM users LIMIT 5", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_a_paginated_statement() {
-        select = Select.from("users").limit(5).offset(5);
+        select = Select.all().from("users").limit(5).offset(5);
         assertEquals("SELECT * FROM users LIMIT 5 OFFSET 5", select.toSQL());
     }
 
     @Test
     public void it_converts_to_sql_a_join_statement() {
-        select = Select.from("users", "u").join("roles r", "u.role_id = r.id");
+        select = Select
+            .all()
+            .from("users", "u")
+            .join("roles r", "u.role_id = r.id")
+        ;
         assertEquals(
             "SELECT * FROM users u INNER JOIN roles r ON u.role_id = r.id",
             select.toSQL()
@@ -162,6 +169,7 @@ public class SelectTest {
     @Test
     public void it_converts_to_sql_several_join_statements() {
         select = Select
+            .all()
             .from("posts", "p")
             .join("posts_tags pt", "pt.post_id = p.id")
             .outerJoin("tags t", "pt.tag_id = t.id")
@@ -175,6 +183,7 @@ public class SelectTest {
     @Test
     public void it_converts_to_sql_several_join_statements_with_a_where_clause() {
         select = Select
+            .all()
             .from("posts", "p")
             .outerJoin("posts_tags pt", "pt.post_id = p.id")
             .join("tags t", "pt.tag_id = t.id")
@@ -189,6 +198,7 @@ public class SelectTest {
     @Test
     public void it_converts_to_sql_several_join_statements_with_two_where_clauses() {
         select = Select
+            .all()
             .from("posts", "p")
             .join("posts_tags pt", "pt.post_id = p.id")
             .outerJoin("tags t", "pt.tag_id = t.id")
@@ -200,4 +210,6 @@ public class SelectTest {
             select.toSQL()
         );
     }
+
+    private Select select;
 }

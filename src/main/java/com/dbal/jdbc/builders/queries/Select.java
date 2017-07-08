@@ -11,10 +11,10 @@ import java.util.Map;
 public class Select implements HasSQLRepresentation {
     private Map<String, HasSQLRepresentation> parts;
 
-    private Select(From from) {
+    private Select(Columns columns) {
         parts = new HashMap<>();
-        parts.put("from", from);
-        parts.put("columns", Columns.empty());
+        parts.put("from", From.empty());
+        parts.put("columns", columns);
         parts.put("where", Where.empty());
         parts.put("join", Join.empty());
         parts.put("rows", Rows.all());
@@ -34,12 +34,22 @@ public class Select implements HasSQLRepresentation {
         parts.put("rows", select.parts.get("rows"));
     }
 
-    public static Select from(String table) {
-        return new Select(From.table(table));
+    public static Select all() {
+        return new Select(Columns.all());
     }
 
-    public static Select from(String table, String alias) {
-        return new Select(From.tableWithAlias(table, alias));
+    public static Select columns(String... columns) {
+        return new Select(Columns.empty().add(columns));
+    }
+
+    public Select from(String table) {
+        ((From) parts.get("from")).table(table);
+        return this;
+    }
+
+    public Select from(String table, String alias) {
+        ((From) parts.get("from")).tableWithAlias(table, alias);
+        return this;
     }
 
     /**
@@ -62,7 +72,7 @@ public class Select implements HasSQLRepresentation {
         return this;
     }
 
-    public Select columns(String... columns) {
+    public Select replaceColumns(String... columns) {
         ((Columns) parts.get("columns")).clear().add(columns);
         return this;
     }

@@ -16,7 +16,8 @@ class From implements HasSQLRepresentation {
     }
 
     private void assertValidTableName(String table) {
-        if (table.trim().length() > 0 && table.indexOf(' ') == -1) return;
+        if (table == null && alias == null) return;
+        if (table != null && table.trim().length() > 0 && table.indexOf(' ') == -1) return;
 
         throw new IllegalArgumentException("Invalid table name given");
     }
@@ -26,12 +27,20 @@ class From implements HasSQLRepresentation {
         alias = from.alias;
     }
 
-    static From table(String table) {
-        return new From(table, null);
+    static From empty() {
+        return new From(null, null);
     }
 
-    static From tableWithAlias(String table, String alias) {
-        return new From(table, alias);
+    From table(String table) {
+        assertValidTableName(table);
+        this.table = table;
+        return this;
+    }
+
+    From tableWithAlias(String table, String alias) {
+        this.table = table;
+        this.alias = alias;
+        return this;
     }
 
     void addAlias(String alias) {
